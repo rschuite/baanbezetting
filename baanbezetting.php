@@ -2,6 +2,9 @@
 if (php_sapi_name() === 'cli') {
     parse_str($argv[1] ?? '', $_GET);
 }
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 0);
 /**
  * Baanbezetting Anderstein   
  * In eerste instantie bedoeld voor het tonen van de baanbezetting op de narrow casting schermen.
