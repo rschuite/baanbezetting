@@ -7,7 +7,7 @@
    * https://www.mijnanderstein.nl/baanbezetting/ 
    * https://www.golfclubanderstein.nl/baanbezetting/ voor gebruik op de narrowcasting schermen
  * Versie 2.0  28-3-2026 gereed voor publicatie op de schermen
-
+*/
 date_default_timezone_set('Europe/Amsterdam');
 
 /* DATUM LOGICA */
