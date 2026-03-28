@@ -1,5 +1,7 @@
 
 name: Generate Baanbezetting
+permissions:
+  contents: write
 
 on:
   schedule:
