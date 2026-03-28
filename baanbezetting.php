@@ -38,7 +38,17 @@ if (!function_exists('m2t')) { function m2t($m){ return str_pad(floor($m/60),2,"
 
 /* LOAD SHEET */
 $sheetData = [];
-$fileContent = file($sheetUrl);
+$fileContent = @file($sheetUrl);
+
+if(!$fileContent){
+    $csv = @file_get_contents($sheetUrl);
+    if($csv){
+        $fileContent = explode("\n", $csv);
+    } else {
+        $fileContent = [];
+    }
+}
+
 if ($fileContent) {
     $rows = array_map("str_getcsv", $fileContent);
     array_shift($rows);
@@ -72,9 +82,22 @@ if (!function_exists('check18')) {
 
 /* API DATA */
 $url = "https://www.nexxchange.com/api/widget/teeTimes/nl/$slug?format=json&date=$currentDateStr&issuerId=$issuer";
-$json = file_get_contents($url);
-if(preg_match('/^callback\((.*)\);?$/s',$json,$m)) $json=$m[1];
-$data = json_decode($json,true);
+$context = stream_context_create([
+    "http" => [
+        "timeout" => 10,
+        "header" => "User-Agent: Mozilla/5.0\r\n"
+    ]
+]);
+
+$json = @file_get_contents($url, false, $context);
+
+if(!$json){
+    $data = [];
+} else {
+    if(preg_match('/^callback\((.*)\);?$/s',$json,$m)) $json=$m[1];
+    $data = json_decode($json,true);
+    if(!is_array($data)) $data = [];
+}
 
 $times=[];
 if (isset($data["golfCourse"])) { foreach($data["golfCourse"] as $c){ foreach($c["teeTimes"] as $t) { $times[] = substr($t["ttTime"] ?? $t["time"],0,5); } } }
