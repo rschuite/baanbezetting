@@ -174,7 +174,7 @@ $displayTimes = array_filter($times, function($t) use ($pastLimit) { return t2m(
 
 /* STANDAARD (Niet-scrollen / Clubhuis): Klok rechts */
 #clock-bb {
-    position: absolute;
+    position: static;
     right: 30px;
     font-weight: normal;
 }
