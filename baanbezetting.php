@@ -41,7 +41,18 @@ if (!function_exists('m2t')) { function m2t($m){ return str_pad(floor($m/60),2,"
 
 /* LOAD SHEET */
 $sheetData = [];
-$fileContent = @file($sheetUrl);
+$sheetUrlNoCache = $sheetUrl . "&_=" . time();
+
+$context = stream_context_create([
+    "http" => [
+        "header" =>
+            "User-Agent: Mozilla/5.0\r\n" .
+            "Cache-Control: no-cache\r\n" .
+            "Pragma: no-cache\r\n"
+    ]
+]);
+
+$fileContent = @file($sheetUrlNoCache, false, $context);
 
 if(!$fileContent){
     $csv = @file_get_contents($sheetUrl);
@@ -92,7 +103,18 @@ $context = stream_context_create([
     ]
 ]);
 
-$json = @file_get_contents($url, false, $context);
+$context = stream_context_create([
+    "http" => [
+        "method" => "GET",
+        "header" =>
+            "User-Agent: Mozilla/5.0\r\n" .
+            "Cache-Control: no-cache\r\n" .
+            "Pragma: no-cache\r\n",
+        "timeout" => 10
+    ]
+]);
+
+$json = @file_get_contents($url . "&_=" . time(), false, $context);
 
 if(!$json){
     $data = [];
