@@ -1,21 +1,21 @@
-name: Generate Baanbezetting
-
-permissions:
-  contents: write
+name: Update Baanbezetting
 
 on:
   schedule:
-    - cron: "*/2 * * * *"
-  workflow_dispatch:
+    - cron: "*/2 * * * *" # Elke 2 minuten
+  workflow_dispatch:      # Handmatige knop
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -23,19 +23,12 @@ jobs:
           php-version: '8.2'
 
       - name: Generate HTML
-        run: |
-          # Verwijder de oude index om verwarring te voorkomen
-          rm -f index.html
-          # Voer het script uit en dwing output naar index.html
-          php baanbezetting.php > index.html
-          # Controleer of het bestand echt gemaakt is en niet leeg is
-          ls -l index.html
+        run: php baanbezetting.php > index.html
 
-      - name: Commit and Push
+      - name: Commit and Push index.html
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html
-          # We voegen de huidige datum toe aan het commit bericht om de push te forceren
-          git commit -m "Update: $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push origin HEAD --force
+          git commit -m "Update baanbezetting $(date)" || echo "Geen wijzigingen"
+          git push origin HEAD
