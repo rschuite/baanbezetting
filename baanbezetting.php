@@ -1,12 +1,6 @@
 <?php
-if (php_sapi_name() === 'cli') {
-    parse_str($argv[1] ?? '', $_GET);
-}
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 0);
 /**
- * Baanbezetting Anderstein   
+ * Baanbezetting Anderstein  
  * In eerste instantie bedoeld voor het tonen van de baanbezetting op de narrow casting schermen.
  * Daarna uitgebreid met de toevoeging aan de url met ?scrollen=1 voor gebruik op mobiel - ook over meerdere dagen
  * Wordt gebruikt op de pagina's: 
@@ -17,7 +11,7 @@ ini_set('log_errors', 0);
 date_default_timezone_set('Europe/Amsterdam');
 
 /* DATUM LOGICA */
-$currentDateStr = date("d.m.Y");
+$currentDateStr = isset($_GET['d']) ? $_GET['d'] : date("d.m.Y");
 $currentTimestamp = strtotime($currentDateStr);
 if (!$currentTimestamp) { $currentTimestamp = time(); $currentDateStr = date("d-m-Y"); }
 
@@ -41,28 +35,7 @@ if (!function_exists('m2t')) { function m2t($m){ return str_pad(floor($m/60),2,"
 
 /* LOAD SHEET */
 $sheetData = [];
-$sheetUrlNoCache = $sheetUrl . "&_=" . time();
-
-$context = stream_context_create([
-    "http" => [
-        "header" =>
-            "User-Agent: Mozilla/5.0\r\n" .
-            "Cache-Control: no-cache\r\n" .
-            "Pragma: no-cache\r\n"
-    ]
-]);
-
-$fileContent = @file($sheetUrlNoCache, false, $context);
-
-if(!$fileContent){
-    $csv = @file_get_contents($sheetUrl);
-    if($csv){
-        $fileContent = explode("\n", $csv);
-    } else {
-        $fileContent = [];
-    }
-}
-
+$fileContent = file($sheetUrl);
 if ($fileContent) {
     $rows = array_map("str_getcsv", $fileContent);
     array_shift($rows);
@@ -96,33 +69,9 @@ if (!function_exists('check18')) {
 
 /* API DATA */
 $url = "https://www.nexxchange.com/api/widget/teeTimes/nl/$slug?format=json&date=$currentDateStr&issuerId=$issuer";
-$context = stream_context_create([
-    "http" => [
-        "timeout" => 10,
-        "header" => "User-Agent: Mozilla/5.0\r\n"
-    ]
-]);
-
-$context = stream_context_create([
-    "http" => [
-        "method" => "GET",
-        "header" =>
-            "User-Agent: Mozilla/5.0\r\n" .
-            "Cache-Control: no-cache\r\n" .
-            "Pragma: no-cache\r\n",
-        "timeout" => 10
-    ]
-]);
-
-$json = @file_get_contents($url . "&_=" . time(), false, $context);
-
-if(!$json){
-    $data = [];
-} else {
-    if(preg_match('/^callback\((.*)\);?$/s',$json,$m)) $json=$m[1];
-    $data = json_decode($json,true);
-    if(!is_array($data)) $data = [];
-}
+$json = file_get_contents($url);
+if(preg_match('/^callback\((.*)\);?$/s',$json,$m)) $json=$m[1];
+$data = json_decode($json,true);
 
 $times=[];
 if (isset($data["golfCourse"])) { foreach($data["golfCourse"] as $c){ foreach($c["teeTimes"] as $t) { $times[] = substr($t["ttTime"] ?? $t["time"],0,5); } } }
@@ -198,8 +147,7 @@ $displayTimes = array_filter($times, function($t) use ($pastLimit) { return t2m(
 #clock-bb {
     position: absolute;
     right: 30px;
-    top: 50%;
-    transform: translateY(-50%);
+    font-weight: normal;
 }
 
 /* SCROLL-VERSIE (Mobiel): Klok achter de datum */
