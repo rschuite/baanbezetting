@@ -17,7 +17,7 @@ ini_set('log_errors', 0);
 date_default_timezone_set('Europe/Amsterdam');
 
 /* DATUM LOGICA */
-$currentDateStr = isset($_GET['d']) ? $_GET['d'] : date("d.m.Y");
+$currentDateStr = date("d.m.Y");
 $currentTimestamp = strtotime($currentDateStr);
 if (!$currentTimestamp) { $currentTimestamp = time(); $currentDateStr = date("d-m-Y"); }
 
