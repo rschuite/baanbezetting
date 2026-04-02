@@ -8,7 +8,7 @@ date_default_timezone_set('Europe/Amsterdam');
 
 /* 1. DATUM LOGICA (Aangepast voor GitHub Actions) */
 // Als we via de browser kijken met ?d=... gebruiken we die, anders altijd VANDAAG
-$currentDateStr = isset($_GET['d']) ? $_GET['d'] : date("d.m.Y");
+$currentDateStr = date("d.m.Y");
 $currentTimestamp = strtotime($currentDateStr);
 
 if (!$currentTimestamp) { 
